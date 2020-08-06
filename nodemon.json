@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "*"
+  ],
+  "ext": "go",
+  "exec": "go test || exit 1"
+}
