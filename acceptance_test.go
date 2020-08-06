@@ -8,6 +8,13 @@ import (
 	"testing"
 )
 
+func assertNotError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAcceptance(t *testing.T) {
 	serverExit := &sync.WaitGroup{}
 	serverExit.Add(1)
@@ -22,16 +29,11 @@ func TestAcceptance(t *testing.T) {
 	}()
 
 	response, err := http.Get("http://localhost:5000/")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assertNotError(t, err)
 
 	defer response.Body.Close()
-
 	bodyAsBytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assertNotError(t, err)
 
 	got := string(bodyAsBytes)
 	want := "Hello world"
