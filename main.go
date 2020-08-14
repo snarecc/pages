@@ -1,21 +1,17 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"sync"
 )
 
-func startHTTPServer(wg *sync.WaitGroup) *http.Server {
-	server := &http.Server{Addr: ":5000"}
-
-	http.HandleFunc(
-		"/",
-		func(w http.ResponseWriter, r *http.Request) {
-			io.WriteString(w, "Hello world")
-		},
-	)
+// StartHTTPServer ...
+func StartHTTPServer(wg *sync.WaitGroup) *http.Server {
+	server := &http.Server{
+		Addr:    ":5000",
+		Handler: &controller{},
+	}
 
 	go func() {
 		defer wg.Done()
@@ -31,6 +27,6 @@ func startHTTPServer(wg *sync.WaitGroup) *http.Server {
 func main() {
 	serverExit := &sync.WaitGroup{}
 	serverExit.Add(1)
-	startHTTPServer(serverExit)
+	StartHTTPServer(serverExit)
 	serverExit.Wait()
 }

@@ -1,11 +1,15 @@
-package main
+package main_test
 
 import (
 	"context"
-	"io/ioutil"
+	"encoding/json"
 	"net/http"
+	"os"
+	"reflect"
 	"sync"
 	"testing"
+
+	. "arctair.com/go-starter"
 )
 
 func assertNotError(t *testing.T, err error) {
@@ -16,29 +20,34 @@ func assertNotError(t *testing.T, err error) {
 }
 
 func TestAcceptance(t *testing.T) {
-	serverExit := &sync.WaitGroup{}
-	serverExit.Add(1)
-	server := startHTTPServer(serverExit)
+	baseUrl := os.Getenv("BASE_URL")
+	if baseUrl == "" {
+		baseUrl = "http://localhost:5000/"
 
-	defer func() {
-		if err := server.Shutdown(context.TODO()); err != nil {
-			panic(err)
-		}
+		serverExit := &sync.WaitGroup{}
+		serverExit.Add(1)
+		server := StartHTTPServer(serverExit)
 
-		serverExit.Wait()
-	}()
+		defer func() {
+			if err := server.Shutdown(context.TODO()); err != nil {
+				panic(err)
+			}
 
-	response, err := http.Get("http://localhost:5000/")
+			serverExit.Wait()
+		}()
+	}
+
+	response, err := http.Get(baseUrl)
 	assertNotError(t, err)
 
+	var got []string
 	defer response.Body.Close()
-	bodyAsBytes, err := ioutil.ReadAll(response.Body)
+	err = json.NewDecoder(response.Body).Decode(&got)
 	assertNotError(t, err)
 
-	got := string(bodyAsBytes)
-	want := "Hello world"
+	want := []string{}
 
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q want %q", got, want)
 	}
 }
