@@ -2,7 +2,8 @@
 Template for Golang HTTP APIs
 ## Run the tests
 ```
-$ go test
+$ go test github.com/arctair/go-starter/v1
+$ go test -tags acceptance
 ```
 or
 ```
