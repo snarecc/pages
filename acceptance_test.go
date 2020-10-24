@@ -49,19 +49,26 @@ func TestAcceptance(t *testing.T) {
 		response, err := http.Get(fmt.Sprintf("%s/version", baseUrl))
 		assertutil.NotError(t, err)
 
-		var got map[string]string
+		gotStatusCode := response.StatusCode
+		wantStatusCode := 200
+
+		if gotStatusCode != wantStatusCode {
+			t.Errorf("got status code %d want %d", gotStatusCode, wantStatusCode)
+		}
+
+		var gotBody map[string]string
 		defer response.Body.Close()
-		err = json.NewDecoder(response.Body).Decode(&got)
+		err = json.NewDecoder(response.Body).Decode(&gotBody)
 		assertutil.NotError(t, err)
 
 		sha1Pattern := regexp.MustCompile("^[0-9a-f]{40}(-dirty)?$")
 		versionPattern := regexp.MustCompile("^\\d+\\.\\d+\\.\\d+$")
 
-		if !sha1Pattern.MatchString(got["sha1"]) {
-			t.Errorf("got sha1 %s want 40 hex digits", got["sha1"])
+		if !sha1Pattern.MatchString(gotBody["sha1"]) {
+			t.Errorf("got sha1 %s want 40 hex digits", gotBody["sha1"])
 		}
-		if !versionPattern.MatchString(got["version"]) && !sha1Pattern.MatchString(got["version"]) {
-			t.Errorf("got version %s want semver or 40 hex digits", got["version"])
+		if !versionPattern.MatchString(gotBody["version"]) && !sha1Pattern.MatchString(gotBody["version"]) {
+			t.Errorf("got version %s want semver or 40 hex digits", gotBody["version"])
 		}
 	})
 }
