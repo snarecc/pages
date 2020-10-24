@@ -11,7 +11,7 @@ $ nodemon
 ```
 ### Run the tests against a deployment
 ```
-$ BASE_URL=https://your_deployment.com go test
+$ BASE_URL=https://your_deployment.com go test -tags acceptance
 ```
 ## Run the server
 ```
